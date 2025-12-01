@@ -3,7 +3,7 @@ import torch.nn as nn
 import math
 
 
-# SinusoidalPositionEmbeddings 类保持不变，无需修改
+# SinusoidalPositionEmbeddings 类
 class SinusoidalPositionEmbeddings(nn.Module):
     """
     将时间步 t 转换为高维向量表示。
@@ -24,7 +24,7 @@ class SinusoidalPositionEmbeddings(nn.Module):
         return embeddings
 
 
-# ResidualBlock 类保持不变，无需修改
+# ResidualBlock 类
 class ResidualBlock(nn.Module):
     """
     U-Net 中的基本构建块，包含两个卷积层、组归一化、激活函数以及时间嵌入的注入。
@@ -71,22 +71,21 @@ class ResidualBlock(nn.Module):
 
 class UNet(nn.Module):
     """
-    【修改】一个简化的、支持条件生成的 U-Net 架构。
+    一个简化的、支持条件生成的 U-Net 架构。
     它的任务是接收加噪图片 x_t、时间步 t 和类别标签 c，预测出添加的噪声。
     """
 
-    # 【修改】: __init__ 方法签名，新增 num_classes
     def __init__(self, in_channels=1, out_channels=1, time_emb_dim=256, num_classes=10):
         super().__init__()
 
-        # --- 时间步嵌入 (保持不变) ---
+        # --- 时间步嵌入 ---
         self.time_mlp = nn.Sequential(
             SinusoidalPositionEmbeddings(time_emb_dim),
             nn.Linear(time_emb_dim, time_emb_dim),
             nn.ReLU()
         )
 
-        # --- 【新增】: 类别标签嵌入 ---
+        # --- 类别标签嵌入 ---
         # 我们需要能处理10个数字类别 (0-9) 和1个无条件类别。
         # 因此嵌入层的输入维度是 num_classes + 1。
         self.class_emb = nn.Embedding(num_classes + 1, time_emb_dim)
@@ -115,12 +114,12 @@ class UNet(nn.Module):
         # --- 输出层 ---
         self.output = nn.Conv2d(64, out_channels, kernel_size=1)
 
-    # 【修改】: forward 方法签名，新增 c (class label)
+    #  forward 方法签名，新增 c (class label)
     def forward(self, x, t, c=None):
         # 1. 时间嵌入
         t_emb = self.time_mlp(t)
 
-        # --- 【新增】: 类别嵌入与融合 ---
+        # --- 类别嵌入与融合 ---
         # 如果提供了类别标签 c (在训练和条件采样时)
         if c is not None:
             # 将类别 ID 转换为嵌入向量
@@ -156,7 +155,7 @@ class UNet(nn.Module):
 
 
 if __name__ == '__main__':
-    # --- 【修改】: 更新测试，验证条件模型的输入输出 ---
+    # ---  更新测试，验证条件模型的输入输出 ---
 
     BATCH_SIZE = 16
     IMG_CHANNELS = 1
@@ -173,7 +172,7 @@ if __name__ == '__main__':
     # 2. 创建假的输入张量
     dummy_x = torch.randn(BATCH_SIZE, IMG_CHANNELS, IMG_SIZE, IMG_SIZE)
     dummy_t = torch.randint(0, 1000, (BATCH_SIZE,))
-    # 【新增】: 创建假的类别标签张量 (0-9)
+    # 创建假的类别标签张量 (0-9)
     dummy_c = torch.randint(0, NUM_CLASSES, (BATCH_SIZE,))
 
     # 3. 执行前向传播 (传入类别标签)
@@ -187,4 +186,5 @@ if __name__ == '__main__':
     print(f"输出 (预测噪声) 形状: {predicted_noise.shape}")
 
     assert dummy_x.shape == predicted_noise.shape, "输入和输出的形状不匹配!"
+
     print("\n模型测试通过！输入输出形状一致。")
