@@ -88,9 +88,8 @@ class NoisingForwardDiffusionScheduler:
 if __name__ == '__main__':
     # --- 1. 配置参数 ---
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    # 根据您的截图，设置 MNIST 数据集的根目录
-    # 请确保这个路径在您的电脑上是正确的
-    MNIST_DATA_ROOT = "D:\\WhaleLearning\\Data"
+
+    MNIST_DATA_ROOT = ""
     TIMESTEPS = 1000
 
     print(f"使用的设备: {DEVICE}")
@@ -167,4 +166,5 @@ if __name__ == '__main__':
         ax.axis('off')
 
     plt.tight_layout()
+
     plt.show()
